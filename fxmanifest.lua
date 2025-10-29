@@ -16,11 +16,8 @@ files {
     'client/entities.lua',
     'shared/settings.lua',
     'shared/log.lua',
-    'bridge/**/client.lua',
-    'assets/**/*.png',
-    'assets/*.ytd'
+    'bridge/**/client.lua'
 }
-
 
 shared_scripts {
     '@ox_lib/init.lua',
