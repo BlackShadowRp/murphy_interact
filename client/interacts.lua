@@ -63,12 +63,8 @@ local function CreateInteractions(keypressed)
                     currentAlpha = 255
                     currentSelection = 1
                 end
-                if not HasStreamedTextureDictLoaded(settings.Style) then
-                    RequestStreamedTextureDict(settings.Style, true)
-                    while not HasStreamedTextureDictLoaded(settings.Style) do
-                        Wait(1)
-                    end
-                else
+                if not MurphyTextureReady() then
+                    return
                 end
                 if GetScreenCoordFromWorldCoord(coords.x, coords.y, coords.z) then
                     local isClose = isPrimary and (interaction.curDist <= interaction.interactDst) and
@@ -191,7 +187,7 @@ end
 
 -- Fast thread
 CreateThread(function()
-    lib.requestStreamedTextureDict(settings.Style)
+    MurphyTextureReady()
     -- Citizen.InvokeNative(0xC1BA29DF5631B0F8, settings.Style, true)
     local showinteraction = false
     local wait = 500

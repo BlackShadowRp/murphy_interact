@@ -1,23 +1,27 @@
 local settings = require 'shared.settings'
--- local textures = settings.Textures
--- local txd = Citizen.InvokeNative(0x1F3AC778, settings.Style)
+local nextRequestAt = 0
 
+-- Fehlende Streaming-Assets dürfen den Interaktions-Thread nicht beenden.
+function MurphyTextureReady()
+    local loaded = HasStreamedTextureDictLoaded(settings.Style)
+    if loaded == true or loaded == 1 then return true end
+    local now = GetGameTimer()
+    if now >= nextRequestAt then
+        nextRequestAt = now + 1000
+        RequestStreamedTextureDict(settings.Style, true)
+    end
+    return false
+end
 
--- for _, v in pairs(textures) do
---     local test = Citizen.InvokeNative(0x786D8BC3, txd, tostring(v), 'assets/'..settings.Style..'/'..v..'.png')
---     print (test, txd, tostring(v), 'assets/'..settings.Style..'/'..v..'.png')
--- end
-
-Citizen.CreateThread(function()
+CreateThread(function()
+    local startedAt = GetGameTimer()
+    local warned = false
     while true do
-        Citizen.Wait(0)
-		if not HasStreamedTextureDictLoaded(settings.Style) then
-				RequestStreamedTextureDict(settings.Style, true)
-				while not HasStreamedTextureDictLoaded(settings.Style) do
-					Wait(1)
-				end
-			else
-		end
+        local ready = MurphyTextureReady()
+        if not ready and not warned and GetGameTimer() - startedAt >= 30000 then
+            warned = true
+            print(('[murphy_interact] Textur %s noch nicht geladen; erneuter Versuch im Hintergrund.'):format(settings.Style))
+        end
+        Wait(1000)
     end
 end)
-
